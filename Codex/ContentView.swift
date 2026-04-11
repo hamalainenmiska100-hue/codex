@@ -1,6 +1,6 @@
 import AVFoundation
 import AVKit
-import SwiftUI
+import SwiftU
 
 struct ContentView: View {
     @StateObject private var webState = WebViewState()
