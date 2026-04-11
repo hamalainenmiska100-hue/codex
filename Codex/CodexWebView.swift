@@ -212,7 +212,7 @@ struct CodexWebView: UIViewRepresentable {
 
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.12) {
-                webView.pageZoom = 0.9
+                webView.pageZoom = 1.0
                 webView.setNeedsLayout()
                 webView.layoutIfNeeded()
 

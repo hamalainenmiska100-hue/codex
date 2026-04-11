@@ -8,7 +8,7 @@ A minimal iOS wrapper app for `https://chatgpt.com/codex` using SwiftUI + `WKWeb
 - Shared scheme (`Codex`)
 - SwiftUI app target
 - `WKWebView` wrapper
-- 90% page zoom via `pageZoom = 0.9`
+- Full-size page rendering via `pageZoom = 1.0`
 - Back/forward swipe gestures
 - All normal web links stay inside the app
 - Persistent web data inside the app using `WKWebsiteDataStore.default()`
