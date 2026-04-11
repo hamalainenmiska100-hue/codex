@@ -131,6 +131,7 @@ struct CodexWebView: UIViewRepresentable {
         let webView = NoZoomWKWebView(frame: .zero, configuration: config)
         webView.navigationDelegate = context.coordinator
         webView.uiDelegate = context.coordinator
+        context.coordinator.attach(webView: webView)
 
         webView.allowsBackForwardNavigationGestures = true
         webView.scrollView.contentInsetAdjustmentBehavior = .never
@@ -149,6 +150,8 @@ struct CodexWebView: UIViewRepresentable {
         if #available(iOS 16.4, *) {
             webView.isInspectable = false
         }
+        
+        webView.customUserAgent = "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1"
 
         let request = URLRequest(
             url: url,
@@ -164,10 +167,15 @@ struct CodexWebView: UIViewRepresentable {
 
     final class Coordinator: NSObject, WKNavigationDelegate, WKUIDelegate, WKScriptMessageHandler {
         private let haptic = UIImpactFeedbackGenerator(style: .light)
+        private weak var webView: WKWebView?
 
         override init() {
             super.init()
             haptic.prepare()
+        }
+        
+        func attach(webView: WKWebView) {
+            self.webView = webView
         }
 
         func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
@@ -185,7 +193,6 @@ struct CodexWebView: UIViewRepresentable {
                 return
             }
 
-            let host = requestURL.host?.lowercased() ?? ""
             let urlString = requestURL.absoluteString.lowercased()
             let scheme = requestURL.scheme?.lowercased() ?? ""
 
@@ -195,10 +202,7 @@ struct CodexWebView: UIViewRepresentable {
                 return
             }
 
-            if host.contains("accounts.google.com") ||
-                host.contains("google.com") && urlString.contains("oauth") ||
-                urlString.contains("disallowed_useragent") {
-                UIApplication.shared.open(requestURL)
+            if urlString.contains("about:blank") && navigationAction.targetFrame == nil {
                 decisionHandler(.cancel)
                 return
             }
@@ -208,7 +212,7 @@ struct CodexWebView: UIViewRepresentable {
 
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.12) {
-                webView.pageZoom = 0.9
+                webView.pageZoom = 1.0
                 webView.setNeedsLayout()
                 webView.layoutIfNeeded()
 
@@ -219,7 +223,7 @@ struct CodexWebView: UIViewRepresentable {
         }
 
         func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
-            webView.reload()
+            (self.webView ?? webView).reload()
         }
 
         func webView(_ webView: WKWebView,
