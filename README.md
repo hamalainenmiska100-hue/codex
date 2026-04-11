@@ -1,6 +1,6 @@
 # Codex
 
-A minimal iOS wrapper app for `https://chatgpt.com/codex` using SwiftUI + `WKWebView`.
+A minimal iOS wrapper app for `https://chatgpt.com/codex/cloud` using SwiftUI + `WKWebView`.
 
 ## Included
 
