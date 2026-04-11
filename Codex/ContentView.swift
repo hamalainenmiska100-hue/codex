@@ -58,32 +58,6 @@ struct ContentView: View {
             }
         }
         .background(Color.black.ignoresSafeArea())
-        .safeAreaInset(edge: .bottom) {
-            HStack(spacing: 16) {
-                Button {
-                    webState.reload()
-                } label: {
-                    Image(systemName: "arrow.clockwise")
-                        .font(.system(size: 16, weight: .semibold))
-                        .frame(width: 34, height: 34)
-                }
-                .buttonStyle(.bordered)
-
-                Spacer()
-
-                if let currentURL = webState.currentURL {
-                    ShareLink(item: currentURL) {
-                        Image(systemName: "square.and.arrow.up")
-                            .font(.system(size: 16, weight: .semibold))
-                            .frame(width: 34, height: 34)
-                    }
-                    .buttonStyle(.bordered)
-                }
-            }
-            .padding(.horizontal, 14)
-            .padding(.vertical, 10)
-            .background(.ultraThinMaterial)
-        }
     }
 }
 
