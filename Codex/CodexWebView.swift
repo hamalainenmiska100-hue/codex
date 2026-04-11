@@ -53,6 +53,16 @@ struct CodexWebView: UIViewRepresentable {
                 return !!el.closest('input, textarea, [contenteditable="true"], [contenteditable=""], [contenteditable], .ProseMirror');
             }
 
+            function focusEditableTarget(target) {
+                if (!isEditable(target)) return;
+                if (document.activeElement === target) return;
+                try {
+                    target.focus({ preventScroll: true });
+                } catch (e) {
+                    try { target.focus(); } catch (_) {}
+                }
+            }
+
             function applyNativeLikeRules() {
                 try {
                     var existing = document.querySelector('meta[name="viewport"]');
@@ -83,6 +93,11 @@ struct CodexWebView: UIViewRepresentable {
                                 -webkit-user-select: text !important;
                                 user-select: text !important;
                                 -webkit-touch-callout: default !important;
+                                touch-action: manipulation !important;
+                            }
+
+                            textarea, [contenteditable], .ProseMirror {
+                                -webkit-overflow-scrolling: touch !important;
                             }
                         `;
                         document.documentElement.appendChild(style);
@@ -110,6 +125,27 @@ struct CodexWebView: UIViewRepresentable {
                 if (!isEditable(e.target)) {
                     e.preventDefault();
                 }
+            }, true);
+
+            document.addEventListener('touchend', function(e) {
+                focusEditableTarget(e.target);
+            }, { passive: true, capture: true });
+
+            document.addEventListener('pointerup', function(e) {
+                focusEditableTarget(e.target);
+            }, true);
+
+            document.addEventListener('focusin', function() {
+                document.documentElement.classList.add('codex-has-focus');
+            }, true);
+
+            document.addEventListener('focusout', function() {
+                window.setTimeout(function() {
+                    var active = document.activeElement;
+                    if (!isEditable(active)) {
+                        document.documentElement.classList.remove('codex-has-focus');
+                    }
+                }, 0);
             }, true);
         })();
         """
