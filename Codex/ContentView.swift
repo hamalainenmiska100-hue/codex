@@ -57,7 +57,7 @@ struct ContentView: View {
                 .zIndex(2)
             }
         }
-        .background(Color.black.ignoresSafeArea())
+        .background(Color.black.ignoresSafeArea(.container, edges: .bottom))
     }
 }
 
@@ -67,7 +67,7 @@ private struct TinySplashVideoView: View {
     var body: some View {
         GeometryReader { proxy in
             ZStack {
-                Color.black.ignoresSafeArea()
+                Color.black
 
                 TinySplashVideoPlayerRepresentable(onFinish: onFinish)
                     .frame(width: proxy.size.width * 0.74)
