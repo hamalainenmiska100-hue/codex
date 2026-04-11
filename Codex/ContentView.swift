@@ -5,120 +5,107 @@ import SwiftUI
 struct ContentView: View {
     @StateObject private var webState = WebViewState()
     @State private var showSplash = true
-    @State private var splashOffset: CGFloat = 0
-
     private let rootURL = URL(string: "https://chatgpt.com/codex/cloud")!
 
     var body: some View {
         ZStack {
-            wrapperContent
-                .offset(x: showSplash ? UIScreen.main.bounds.width : 0)
-                .animation(.spring(response: 0.55, dampingFraction: 0.9), value: showSplash)
+            CodexWebView(url: rootURL, state: webState)
+                .background(Color.black)
+
+            if webState.hasError {
+                VStack(spacing: 12) {
+                    Image(systemName: "wifi.exclamationmark")
+                        .font(.system(size: 34))
+                        .foregroundStyle(.secondary)
+
+                    Text("Couldn’t Load Codex")
+                        .font(.headline)
+
+                    Text(webState.errorMessage ?? "An unknown error occurred.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal)
+
+                    Button("Retry") {
+                        webState.reload()
+                    }
+                    .buttonStyle(.borderedProminent)
+                }
+                .padding(20)
+                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
+                .padding()
+            }
+
+            if webState.isLoading {
+                VStack {
+                    ProgressView("Loading…")
+                        .padding(12)
+                        .background(.ultraThinMaterial, in: Capsule())
+                    Spacer()
+                }
+                .padding(.top, 16)
+            }
 
             if showSplash {
-                SplashVideoView {
-                    withAnimation(.easeInOut(duration: 0.35)) {
-                        splashOffset = -UIScreen.main.bounds.width * 0.22
+                TinySplashVideoView {
+                    withAnimation(.easeOut(duration: 0.25)) {
                         showSplash = false
                     }
                 }
-                .offset(x: splashOffset)
-                .animation(.easeInOut(duration: 0.35), value: splashOffset)
-                .zIndex(1)
+                .transition(.opacity)
+                .zIndex(2)
             }
         }
         .background(Color.black.ignoresSafeArea())
-    }
-
-    private var wrapperContent: some View {
-        NavigationStack {
-            ZStack {
-                CodexWebView(url: rootURL, state: webState)
-                    .background(Color.black)
-
-                if webState.hasError {
-                    VStack(spacing: 12) {
-                        Image(systemName: "wifi.exclamationmark")
-                            .font(.system(size: 34))
-                            .foregroundStyle(.secondary)
-
-                        Text("Couldn’t Load Codex")
-                            .font(.headline)
-
-                        Text(webState.errorMessage ?? "An unknown error occurred.")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal)
-
-                        Button("Retry") {
-                            webState.reload()
-                        }
-                        .buttonStyle(.borderedProminent)
-                    }
-                    .padding(20)
-                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
-                    .padding()
+        .safeAreaInset(edge: .bottom) {
+            HStack(spacing: 16) {
+                Button {
+                    webState.reload()
+                } label: {
+                    Image(systemName: "arrow.clockwise")
+                        .font(.system(size: 16, weight: .semibold))
+                        .frame(width: 34, height: 34)
                 }
+                .buttonStyle(.bordered)
 
-                if webState.isLoading {
-                    VStack {
-                        ProgressView("Loading…")
-                            .padding(12)
-                            .background(.ultraThinMaterial, in: Capsule())
-                        Spacer()
+                Spacer()
+
+                if let currentURL = webState.currentURL {
+                    ShareLink(item: currentURL) {
+                        Image(systemName: "square.and.arrow.up")
+                            .font(.system(size: 16, weight: .semibold))
+                            .frame(width: 34, height: 34)
                     }
-                    .padding(.top, 16)
+                    .buttonStyle(.bordered)
                 }
             }
-            .navigationTitle("Codex")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItemGroup(placement: .bottomBar) {
-                    Button {
-                        webState.goBack()
-                    } label: {
-                        Image(systemName: "chevron.backward")
-                    }
-                    .disabled(!webState.canGoBack)
-
-                    Button {
-                        webState.goForward()
-                    } label: {
-                        Image(systemName: "chevron.forward")
-                    }
-                    .disabled(!webState.canGoForward)
-
-                    Button {
-                        webState.reload()
-                    } label: {
-                        Image(systemName: "arrow.clockwise")
-                    }
-
-                    Spacer()
-
-                    if let currentURL = webState.currentURL {
-                        ShareLink(item: currentURL) {
-                            Image(systemName: "square.and.arrow.up")
-                        }
-                    }
-                }
-            }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 10)
+            .background(.ultraThinMaterial)
         }
     }
 }
 
-private struct SplashVideoView: View {
+private struct TinySplashVideoView: View {
     let onFinish: () -> Void
 
     var body: some View {
-        SplashVideoPlayerRepresentable(onFinish: onFinish)
-            .ignoresSafeArea()
-            .background(Color.black)
+        GeometryReader { proxy in
+            ZStack {
+                Color.black.ignoresSafeArea()
+
+                TinySplashVideoPlayerRepresentable(onFinish: onFinish)
+                    .frame(width: proxy.size.width * 0.74)
+                    .aspectRatio(16.0 / 9.0, contentMode: .fit)
+                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
     }
 }
 
-private struct SplashVideoPlayerRepresentable: UIViewControllerRepresentable {
+private struct TinySplashVideoPlayerRepresentable: UIViewControllerRepresentable {
     let onFinish: () -> Void
 
     func makeCoordinator() -> Coordinator {
@@ -128,7 +115,7 @@ private struct SplashVideoPlayerRepresentable: UIViewControllerRepresentable {
     func makeUIViewController(context: Context) -> AVPlayerViewController {
         let controller = AVPlayerViewController()
         controller.showsPlaybackControls = false
-        controller.videoGravity = .resizeAspectFill
+        controller.videoGravity = .resizeAspect
         controller.view.backgroundColor = .black
 
         guard let videoURL = Bundle.main.url(forResource: "openai", withExtension: "mp4") else {
@@ -142,7 +129,6 @@ private struct SplashVideoPlayerRepresentable: UIViewControllerRepresentable {
         controller.player = player
         context.coordinator.attach(player: player)
         player.play()
-
         return controller
     }
 
@@ -177,8 +163,7 @@ private struct SplashVideoPlayerRepresentable: UIViewControllerRepresentable {
                 object: player.currentItem,
                 queue: .main
             ) { [weak self] _ in
-                guard let self else { return }
-                finishIfNeeded()
+                self?.finishIfNeeded()
             }
         }
 
