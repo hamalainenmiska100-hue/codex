@@ -12,6 +12,7 @@
 		A00000000000000000000003 /* CodexWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000003 /* CodexWebView.swift */; };
 		A00000000000000000000004 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000004 /* Assets.xcassets */; };
 		A00000000000000000000005 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B00000000000000000000006 /* WebKit.framework */; };
+		A00000000000000000000006 /* openai.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000007 /* openai.mp4 */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -22,6 +23,7 @@
 		B00000000000000000000004 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B00000000000000000000005 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B00000000000000000000006 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
+		B00000000000000000000007 /* openai.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file.mp4; path = openai.mp4; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -39,6 +41,7 @@
 		D00000000000000000000001 = {
 			isa = PBXGroup;
 			children = (
+				B00000000000000000000007 /* openai.mp4 */,
 				D00000000000000000000002 /* Codex */,
 				D00000000000000000000003 /* Frameworks */,
 				D00000000000000000000004 /* Products */,
@@ -132,6 +135,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A00000000000000000000006 /* openai.mp4 in Resources */,
 				A00000000000000000000004 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
